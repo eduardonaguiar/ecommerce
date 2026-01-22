@@ -260,36 +260,17 @@ services:
     networks:
       - ecommerce-net
 
-  catalog:
-    build:
-      context: ../services/_template
-      dockerfile: Dockerfile
-    container_name: ecommerce-catalog
-    environment:
-      SERVICE_NAME: catalog
-      SERVICE_ENV: dev
-      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
-      ASPNETCORE_URLS: http://0.0.0.0:8080
-    depends_on:
-      - otel-collector
-    healthcheck:
-      test: ["CMD", "curl", "-fsSL", "http://localhost:8080/health/ready"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - ecommerce-net
-
   cart:
     build:
-      context: ../services/_template
-      dockerfile: Dockerfile
+      context: ../../services/cart
     container_name: ecommerce-cart
     environment:
       SERVICE_NAME: cart
-      SERVICE_ENV: dev
+      SERVICE_ENV: local
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
       ASPNETCORE_URLS: http://0.0.0.0:8080
+    ports:
+      - "8084:8080"
     depends_on:
       - otel-collector
     healthcheck:
@@ -302,7 +283,7 @@ services:
 
   orders:
     build:
-      context: ../services/_template
+      context: ../../services/_template
       dockerfile: Dockerfile
     container_name: ecommerce-orders
     environment:
@@ -322,7 +303,7 @@ services:
 
   payments:
     build:
-      context: ../services/_template
+      context: ../../services/_template
       dockerfile: Dockerfile
     container_name: ecommerce-payments
     environment:
@@ -342,7 +323,7 @@ services:
 
   query:
     build:
-      context: ../services/_template
+      context: ../../services/_template
       dockerfile: Dockerfile
     container_name: ecommerce-query
     environment:
@@ -362,7 +343,7 @@ services:
 
   gateway:
     build:
-      context: ../services/gateway
+      context: ../../services/gateway
       dockerfile: Dockerfile
     container_name: ecommerce-gateway
     environment:
@@ -399,7 +380,7 @@ services:
 
   service-template:
     build:
-      context: ../services/_template
+      context: ../../services/_template
       dockerfile: Dockerfile
     container_name: ecommerce-service-template
     environment:
