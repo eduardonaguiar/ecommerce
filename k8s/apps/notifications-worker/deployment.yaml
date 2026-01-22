@@ -1,0 +1,90 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: notifications-worker-config
+  namespace: apps-notifications
+  labels:
+    app: notifications-worker
+data:
+  SERVICE_NAME: notifications-worker
+  SERVICE_ENV: k8s
+  OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector.observability.svc.cluster.local:4317
+  ASPNETCORE_URLS: http://0.0.0.0:8080
+  RABBITMQ_HOST: rabbitmq.platform.svc.cluster.local
+  RABBITMQ_USERNAME: ecommerce
+  RABBITMQ_QUEUE: notifications.send
+  NOTIFICATIONS_MAX_RETRIES: "3"
+  NOTIFICATIONS_RETRY_DELAY_SECONDS: "2"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: notifications-worker-secrets
+  namespace: apps-notifications
+  labels:
+    app: notifications-worker
+stringData:
+  RABBITMQ_PASSWORD: ecommerce
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notifications-worker
+  namespace: apps-notifications
+  labels:
+    app: notifications-worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notifications-worker
+  template:
+    metadata:
+      labels:
+        app: notifications-worker
+    spec:
+      containers:
+        - name: notifications-worker
+          image: localhost:5000/ecommerce-notifications-worker:latest
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: notifications-worker-config
+            - secretRef:
+                name: notifications-worker-secrets
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: notifications-worker
+  namespace: apps-notifications
+  labels:
+    app: notifications-worker
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+  selector:
+    app: notifications-worker

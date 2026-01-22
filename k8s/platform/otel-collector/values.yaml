@@ -1,0 +1,27 @@
+mode: deployment
+config:
+  receivers:
+    otlp:
+      protocols:
+        grpc: {}
+        http: {}
+  processors:
+    batch: {}
+  exporters:
+    otlp:
+      endpoint: jaeger-collector.observability.svc.cluster.local:4317
+      tls:
+        insecure: true
+  service:
+    pipelines:
+      traces:
+        receivers: [otlp]
+        processors: [batch]
+        exporters: [otlp]
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 256Mi

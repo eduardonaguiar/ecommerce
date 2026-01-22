@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: platform-elasticsearch
+  namespace: argocd
+spec:
+  project: platform
+  source:
+    repoURL: https://charts.bitnami.com/bitnami
+    chart: elasticsearch
+    targetRevision: 21.2.5
+    helm:
+      releaseName: elasticsearch
+      valueFiles:
+        - values.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: platform
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

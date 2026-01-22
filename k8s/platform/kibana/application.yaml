@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: platform-kibana
+  namespace: argocd
+spec:
+  project: platform
+  source:
+    repoURL: https://charts.bitnami.com/bitnami
+    chart: kibana
+    targetRevision: 11.5.4
+    helm:
+      releaseName: kibana
+      valueFiles:
+        - values.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: platform
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

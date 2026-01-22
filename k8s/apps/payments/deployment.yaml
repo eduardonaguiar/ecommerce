@@ -1,0 +1,88 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: payments-config
+  namespace: apps
+  labels:
+    app: payments
+data:
+  SERVICE_NAME: payments
+  SERVICE_ENV: k8s
+  OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector.observability.svc.cluster.local:4317
+  ASPNETCORE_URLS: http://0.0.0.0:8080
+  POSTGRES_CONNECTION_STRING: Host=postgres.platform.svc.cluster.local;Port=5432;Username=ecommerce;Password=ecommerce;Database=payments
+  KAFKA_BOOTSTRAP_SERVERS: kafka.platform.svc.cluster.local:9092
+  KAFKA_TOPIC: payments.events
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: payments-secrets
+  namespace: apps
+  labels:
+    app: payments
+stringData:
+  PLACEHOLDER_SECRET: local-dev-only
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payments
+  namespace: apps
+  labels:
+    app: payments
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: payments
+  template:
+    metadata:
+      labels:
+        app: payments
+    spec:
+      containers:
+        - name: payments
+          image: localhost:5000/ecommerce-payments:latest
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: payments-config
+            - secretRef:
+                name: payments-secrets
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: payments
+  namespace: apps
+  labels:
+    app: payments
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+  selector:
+    app: payments
