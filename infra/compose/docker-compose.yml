@@ -161,6 +161,83 @@ services:
     networks:
       - ecommerce-net
 
+  prometheus:
+    image: prom/prometheus:v2.51.1
+    container_name: ecommerce-prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.enable-lifecycle"
+    ports:
+      - "9090:9090"
+    volumes:
+      - prometheus_data:/prometheus
+      - ../observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    networks:
+      - ecommerce-net
+
+  grafana:
+    image: grafana/grafana:10.4.2
+    container_name: ecommerce-grafana
+    depends_on:
+      - prometheus
+      - jaeger
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ../observability/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ../observability/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    networks:
+      - ecommerce-net
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.54
+    container_name: ecommerce-jaeger
+    environment:
+      COLLECTOR_OTLP_ENABLED: "true"
+    ports:
+      - "16686:16686"
+      - "14268:14268"
+    networks:
+      - ecommerce-net
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.96.0
+    container_name: ecommerce-otel-collector
+    command: ["--config=/etc/otel-collector/config.yml"]
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+      - "8889:8889"
+    volumes:
+      - ../observability/otel-collector/config.yml:/etc/otel-collector/config.yml:ro
+    depends_on:
+      - jaeger
+    networks:
+      - ecommerce-net
+
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:8.12.2
+    container_name: ecommerce-filebeat
+    user: root
+    command: ["--strict.perms=false"]
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+      kibana:
+        condition: service_healthy
+    volumes:
+      - ../observability/filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - ecommerce-net
+
 networks:
   ecommerce-net:
     name: ecommerce-net
@@ -174,3 +251,5 @@ volumes:
   postgres_data:
   mongo_data:
   elastic_data:
+  prometheus_data:
+  grafana_data:

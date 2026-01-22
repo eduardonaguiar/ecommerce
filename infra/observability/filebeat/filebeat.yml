@@ -1,0 +1,22 @@
+filebeat.inputs:
+  - type: filestream
+    id: docker-logs
+    paths:
+      - /var/lib/docker/containers/*/*.log
+    parsers:
+      - ndjson:
+          target: ""
+          overwrite_keys: true
+    processors:
+      - add_docker_metadata: {}
+
+setup.kibana:
+  host: "kibana:5601"
+
+output.elasticsearch:
+  hosts: ["http://elasticsearch:9200"]
+  index: "filebeat-%{[agent.version]}-%{+yyyy.MM.dd}"
+
+setup.template.name: "filebeat"
+setup.template.pattern: "filebeat-*"
+setup.ilm.enabled: false
