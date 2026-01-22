@@ -1,0 +1,15 @@
+replicaCount: 1
+kraft:
+  enabled: true
+zookeeper:
+  enabled: false
+persistence:
+  enabled: true
+  size: 5Gi
+resources:
+  requests:
+    cpu: 200m
+    memory: 512Mi
+  limits:
+    cpu: 1000m
+    memory: 1Gi

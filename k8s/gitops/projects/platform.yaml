@@ -1,0 +1,17 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: platform
+  namespace: argocd
+spec:
+  description: Platform dependencies for the e-commerce lab.
+  destinations:
+    - namespace: platform
+      server: https://kubernetes.default.svc
+    - namespace: observability
+      server: https://kubernetes.default.svc
+  sourceRepos:
+    - https://github.com/example/ecommerce-lab
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'

@@ -1,0 +1,12 @@
+provisionDataStore:
+  cassandra: false
+  elasticsearch: false
+storage:
+  type: memory
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
