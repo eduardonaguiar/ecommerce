@@ -238,6 +238,28 @@ services:
     networks:
       - ecommerce-net
 
+  service-template:
+    build:
+      context: ../services/_template
+      dockerfile: Dockerfile
+    container_name: ecommerce-service-template
+    environment:
+      SERVICE_NAME: service-template
+      SERVICE_ENV: dev
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      ASPNETCORE_URLS: http://0.0.0.0:8080
+    ports:
+      - "8088:8080"
+    depends_on:
+      - otel-collector
+    healthcheck:
+      test: ["CMD", "curl", "-fsSL", "http://localhost:8080/health/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ecommerce-net
+
 networks:
   ecommerce-net:
     name: ecommerce-net
