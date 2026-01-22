@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Diagnostics.Metrics;
 using Cart.Data;
 using Cart.Logging;
 using Cart.Models;
@@ -75,8 +76,7 @@ app.UseSwagger();
 app.UseSwaggerUI();
 
 app.MapGet("/", () => Results.Ok(new { status = "ok", service = serviceName }))
-    .WithName("GetRoot")
-    .WithOpenApi();
+    .WithName("GetRoot");    
 
 app.MapGet("/carts/{cartId}", (
         string cartId,
@@ -100,8 +100,7 @@ app.MapGet("/carts/{cartId}", (
 
         return Results.Ok(cart);
     })
-    .WithName("GetCart")
-    .WithOpenApi();
+    .WithName("GetCart");
 
 app.MapPost("/carts/{cartId}/items", (
         string cartId,
@@ -149,8 +148,7 @@ app.MapPost("/carts/{cartId}/items", (
 
         return Results.Ok(updatedCart);
     })
-    .WithName("AddCartItem")
-    .WithOpenApi();
+    .WithName("AddCartItem");
 
 app.MapDelete("/carts/{cartId}/items/{productId}", (
         string cartId,
@@ -179,8 +177,7 @@ app.MapDelete("/carts/{cartId}/items/{productId}", (
 
         return Results.Ok(updatedCart);
     })
-    .WithName("RemoveCartItem")
-    .WithOpenApi();
+    .WithName("RemoveCartItem");    
 
 app.MapHealthChecks("/health/live", new HealthCheckOptions
 {

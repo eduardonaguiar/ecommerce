@@ -96,26 +96,23 @@ app.UseSwagger();
 app.UseSwaggerUI();
 
 app.MapGet("/", () => Results.Ok(new { status = "ok", service = serviceName }))
-    .WithName("GetRoot")
-    .WithOpenApi();
+    .WithName("GetRoot");
+
 
 app.MapGet("/products", async (IProductRepository repository, CancellationToken cancellationToken) =>
     Results.Ok(await repository.GetAllAsync(cancellationToken)))
-    .WithName("GetProducts")
-    .WithOpenApi();
+    .WithName("GetProducts");
 
 app.MapGet("/products/{id}", async (string id, IProductRepository repository, CancellationToken cancellationToken) =>
 {
     var product = await repository.GetByIdAsync(id, cancellationToken);
     return product is null ? Results.NotFound() : Results.Ok(product);
 })
-    .WithName("GetProductById")
-    .WithOpenApi();
+    .WithName("GetProductById");
 
 app.MapGet("/categories", async (IProductRepository repository, CancellationToken cancellationToken) =>
     Results.Ok(await repository.GetCategoriesAsync(cancellationToken)))
-    .WithName("GetCategories")
-    .WithOpenApi();
+    .WithName("GetCategories");
 
 app.MapPost("/admin/products", async (
         ProductUpsertRequest request,
@@ -149,8 +146,7 @@ app.MapPost("/admin/products", async (
 
         return Results.Ok(saved);
     })
-    .WithName("UpsertProduct")
-    .WithOpenApi();
+    .WithName("UpsertProduct");    
 
 app.MapHealthChecks("/health/live", new HealthCheckOptions
 {

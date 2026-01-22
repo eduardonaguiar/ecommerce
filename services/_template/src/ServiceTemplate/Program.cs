@@ -56,8 +56,7 @@ app.UseSwagger();
 app.UseSwaggerUI();
 
 app.MapGet("/", () => Results.Ok(new { status = "ok", service = serviceName }))
-    .WithName("GetRoot")
-    .WithOpenApi();
+    .WithName("GetRoot");
 
 app.MapHealthChecks("/health/live", new HealthCheckOptions
 {

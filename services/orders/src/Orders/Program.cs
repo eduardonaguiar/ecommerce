@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Diagnostics.Metrics;
 using Confluent.Kafka;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Npgsql;
@@ -114,16 +115,14 @@ app.UseSwagger();
 app.UseSwaggerUI();
 
 app.MapGet("/", () => Results.Ok(new { status = "ok", service = serviceName }))
-    .WithName("GetRoot")
-    .WithOpenApi();
+    .WithName("GetRoot");
 
 app.MapGet("/orders/{orderId:guid}", async (Guid orderId, IOrderRepository repository, CancellationToken cancellationToken) =>
 {
     var order = await repository.GetByIdAsync(orderId, cancellationToken);
     return order is null ? Results.NotFound() : Results.Ok(OrderResponse.FromOrder(order));
 })
-    .WithName("GetOrder")
-    .WithOpenApi();
+    .WithName("GetOrder");    
 
 app.MapPost("/orders", async (
         OrderCreateRequest request,
@@ -160,8 +159,7 @@ app.MapPost("/orders", async (
 
         return Results.Accepted($"/orders/{order.Id}", OrderResponse.FromOrder(order));
     })
-    .WithName("CreateOrder")
-    .WithOpenApi();
+    .WithName("CreateOrder");    
 
 app.MapHealthChecks("/health/live", new HealthCheckOptions
 {

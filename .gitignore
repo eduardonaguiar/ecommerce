@@ -1,0 +1,46 @@
+﻿########################################
+# Geral
+########################################
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+*.temp
+*.swp
+*.swo
+*.bak
+*.old
+*.orig
+
+########################################
+# Ambiente / Secrets (CRÍTICO)
+########################################
+.env
+.env.*
+!.env.example
+
+*.pem
+*.key
+*.crt
+*.p12
+*.jks
+secrets/
+secrets.local/
+**/secrets/
+**/*.secret
+**/*_secret.yaml
+
+########################################
+# .NET / C#
+########################################
+bin/
+obj/
+*.user
+*.suo
+*.userprefs
+*.csproj.user
+*.dll
+*.exe
+*.pdb
+
+# Ride
