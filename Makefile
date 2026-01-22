@@ -19,7 +19,7 @@ KAFKA_UI_URL ?= http://localhost:8081
 MINIO_CONSOLE_URL ?= http://localhost:9001
 MAILPIT_URL ?= http://localhost:8025
 
-.PHONY: help up down smoke logs urls e2e e2e-saga-success e2e-saga-failure-payment e2e-saga-failure-stock e2e-idempotency e2e-cqrs e2e-security
+.PHONY: help up down smoke logs urls e2e e2e-saga-success e2e-saga-failure-payment e2e-saga-failure-stock e2e-idempotency e2e-cqrs e2e-security e2e-functional e2e-functional-success e2e-functional-failure e2e-functional-cqrs e2e-functional-cart e2e-functional-notifications
 
 COMPOSE_FILE ?= infra/compose/docker-compose.yml
 DOCKER_COMPOSE ?= docker compose
@@ -59,6 +59,24 @@ e2e-cqrs:
 
 e2e-security:
 	@$(K6_RUN) /tests/e2e_security_tls.js
+
+e2e-functional: e2e-functional-success e2e-functional-failure e2e-functional-cart e2e-functional-cqrs e2e-functional-notifications
+
+e2e-functional-success:
+	@$(K6_RUN) /tests/functional/purchase_success.js
+
+e2e-functional-failure:
+	@$(K6_RUN) /tests/functional/purchase_payment_failure.js
+	@$(K6_RUN) /tests/functional/purchase_out_of_stock.js
+
+e2e-functional-cart:
+	@$(K6_RUN) /tests/functional/cart_semantics.js
+
+e2e-functional-cqrs:
+	@$(K6_RUN) /tests/functional/cqrs_eventual_consistency.js
+
+e2e-functional-notifications:
+	@$(K6_RUN) /tests/functional/notification_side_effects.js
 
 logs:
 	@echo "Logs (placeholder). Add log aggregation in infra/."
