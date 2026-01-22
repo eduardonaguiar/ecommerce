@@ -340,6 +340,40 @@ services:
     networks:
       - ecommerce-net
 
+  inventory:
+    build:
+      context: ../../services/inventory
+    container_name: ecommerce-inventory
+    environment:
+      SERVICE_NAME: inventory
+      SERVICE_ENV: dev
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      ASPNETCORE_URLS: http://0.0.0.0:8080
+      POSTGRES_CONNECTION_STRING: Host=postgres;Port=5432;Username=ecommerce;Password=ecommerce;Database=inventory
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      KAFKA_INVENTORY_TOPIC: inventory.events
+      KAFKA_ORDERS_TOPIC: orders.events
+      KAFKA_GROUP_ID: inventory-saga
+      INVENTORY_DEFAULT_PRODUCT_ID: default
+      INVENTORY_DEFAULT_STOCK: "100"
+      INVENTORY_DEFAULT_RESERVATION_QTY: "1"
+    ports:
+      - "8087:8080"
+    depends_on:
+      kafka:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      otel-collector:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-fsSL", "http://localhost:8080/health/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ecommerce-net
+
   query:
     build:
       context: ../../services/_template
@@ -388,6 +422,7 @@ services:
       - cart
       - orders
       - payments
+      - inventory
       - query
     healthcheck:
       test: ["CMD", "curl", "-kfsSL", "https://localhost:8443/health/ready"]
