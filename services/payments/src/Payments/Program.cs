@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Diagnostics.Metrics;
 using Confluent.Kafka;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Npgsql;
@@ -101,8 +102,7 @@ app.UseSwagger();
 app.UseSwaggerUI();
 
 app.MapGet("/", () => Results.Ok(new { status = "ok", service = serviceName }))
-    .WithName("GetRoot")
-    .WithOpenApi();
+    .WithName("GetRoot");
 
 app.MapGet("/payments/{paymentId:guid}", async (
         Guid paymentId,
@@ -112,8 +112,7 @@ app.MapGet("/payments/{paymentId:guid}", async (
         var attempt = await repository.GetAttemptByIdAsync(paymentId, cancellationToken);
         return attempt is null ? Results.NotFound() : Results.Ok(PaymentResponse.FromAttempt(attempt));
     })
-    .WithName("GetPayment")
-    .WithOpenApi();
+    .WithName("GetPayment");    
 
 app.MapPost("/payments", async (
         PaymentRequest request,
@@ -186,8 +185,7 @@ app.MapPost("/payments", async (
 
         return Results.Ok(PaymentResponse.FromAttempt(attempt));
     })
-    .WithName("ProcessPayment")
-    .WithOpenApi();
+    .WithName("ProcessPayment");
 
 app.MapHealthChecks("/health/live", new HealthCheckOptions
 {
