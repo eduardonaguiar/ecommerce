@@ -313,16 +313,25 @@ services:
 
   payments:
     build:
-      context: ../../services/_template
-      dockerfile: Dockerfile
+      context: ../../services/payments
     container_name: ecommerce-payments
     environment:
       SERVICE_NAME: payments
       SERVICE_ENV: dev
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
       ASPNETCORE_URLS: http://0.0.0.0:8080
+      POSTGRES_CONNECTION_STRING: Host=postgres;Port=5432;Username=ecommerce;Password=ecommerce;Database=payments
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      KAFKA_TOPIC: payments.events
+    ports:
+      - "8086:8080"
     depends_on:
-      - otel-collector
+      kafka:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      otel-collector:
+        condition: service_started
     healthcheck:
       test: ["CMD", "curl", "-fsSL", "http://localhost:8080/health/ready"]
       interval: 10s
