@@ -9,7 +9,7 @@ public static class OrderStateMachine
             return OrderTransition.NoChange(order);
         }
 
-        var newStatus = order.PaymentStatus == PaymentStatus.Processed
+        var newStatus = order.PaymentStatus == PaymentStatus.Paid
             ? OrderStatus.Confirmed
             : order.Status;
 
@@ -23,7 +23,7 @@ public static class OrderStateMachine
             return OrderTransition.NoChange(order);
         }
 
-        return BuildTransition(order, OrderStatus.Cancelled, StockStatus.Failed, order.PaymentStatus, "stock.failed", reason);
+        return BuildTransition(order, OrderStatus.Cancelled, StockStatus.OutOfStock, order.PaymentStatus, "stock.failed", reason);
     }
 
     public static OrderTransition ApplyPaymentProcessed(Order order)
@@ -36,11 +36,11 @@ public static class OrderStateMachine
         var newStatus = order.StockStatus switch
         {
             StockStatus.Reserved => OrderStatus.Confirmed,
-            StockStatus.Failed => OrderStatus.Cancelled,
+            StockStatus.OutOfStock => OrderStatus.Cancelled,
             _ => order.Status
         };
 
-        return BuildTransition(order, newStatus, order.StockStatus, PaymentStatus.Processed, "payment.processed");
+        return BuildTransition(order, newStatus, order.StockStatus, PaymentStatus.Paid, "payment.processed");
     }
 
     private static bool IsTerminal(Order order)
@@ -50,9 +50,9 @@ public static class OrderStateMachine
 
     private static OrderTransition BuildTransition(
         Order order,
-        string newStatus,
-        string newStockStatus,
-        string newPaymentStatus,
+        OrderStatus newStatus,
+        StockStatus newStockStatus,
+        PaymentStatus newPaymentStatus,
         string trigger,
         string? cancelReason = null)
     {
@@ -74,9 +74,9 @@ public static class OrderStateMachine
 
 public sealed record OrderTransition(
     bool HasChange,
-    string Status,
-    string StockStatus,
-    string PaymentStatus,
+    OrderStatus Status,
+    StockStatus StockStatus,
+    PaymentStatus PaymentStatus,
     bool PublishConfirmed,
     bool PublishCancelled,
     string Trigger,

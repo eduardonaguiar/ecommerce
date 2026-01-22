@@ -35,9 +35,9 @@ public sealed class OrderRepository : IOrderRepository
             Parameters =
             {
                 new("id", order.Id),
-                new("status", order.Status),
-                new("stock_status", order.StockStatus),
-                new("payment_status", order.PaymentStatus),
+                new("status", order.Status.ToString()),
+                new("stock_status", order.StockStatus.ToString()),
+                new("payment_status", order.PaymentStatus.ToString()),
                 new("amount", order.Amount),
                 new("currency", order.Currency),
                 new("customer_id", (object?)order.CustomerId ?? DBNull.Value),
@@ -80,9 +80,9 @@ public sealed class OrderRepository : IOrderRepository
             Parameters =
             {
                 new("id", order.Id),
-                new("status", order.Status),
-                new("stock_status", order.StockStatus),
-                new("payment_status", order.PaymentStatus),
+                new("status", order.Status.ToString()),
+                new("stock_status", order.StockStatus.ToString()),
+                new("payment_status", order.PaymentStatus.ToString()),
                 new("amount", order.Amount),
                 new("currency", order.Currency),
                 new("customer_id", (object?)order.CustomerId ?? DBNull.Value),
@@ -128,9 +128,9 @@ public sealed class OrderRepository : IOrderRepository
         return new Order
         {
             Id = reader.GetGuid(0),
-            Status = reader.GetString(1),
-            StockStatus = reader.GetString(2),
-            PaymentStatus = reader.GetString(3),
+            Status = Enum.Parse<OrderStatus>(reader.GetString(1), true),
+            StockStatus = Enum.Parse<StockStatus>(reader.GetString(2), true),
+            PaymentStatus = Enum.Parse<PaymentStatus>(reader.GetString(3), true),
             Amount = reader.GetDecimal(4),
             Currency = reader.GetString(5),
             CustomerId = reader.IsDBNull(6) ? null : reader.GetString(6),

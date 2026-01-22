@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Confluent.Kafka;
 using Orders.Models;
 
@@ -16,7 +17,11 @@ public sealed class KafkaOrderEventPublisher : IOrderEventPublisher
 {
     private static readonly JsonSerializerOptions SerializerOptions = new()
     {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        Converters =
+        {
+            new JsonStringEnumConverter()
+        }
     };
 
     private readonly IProducer<string, string> _producer;

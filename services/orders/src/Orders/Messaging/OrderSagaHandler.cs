@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Npgsql;
 using Orders.Data;
 using Orders.Models;
@@ -9,7 +10,11 @@ public sealed class OrderSagaHandler
 {
     private static readonly JsonSerializerOptions SerializerOptions = new()
     {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        Converters =
+        {
+            new JsonStringEnumConverter()
+        }
     };
     private readonly NpgsqlDataSource _dataSource;
     private readonly IOrderRepository _repository;
