@@ -2,7 +2,7 @@
 
 ## Prerequisites
 - Make
-- Docker (optional; infra wiring pending)
+- Docker (required for local infrastructure)
 
 ## Repository layout
 - `services/` for service boundaries and APIs
@@ -16,6 +16,20 @@
 cp .env.example .env
 make up
 ```
+
+## Infrastructure bootstrap (Docker Compose)
+```bash
+docker compose -f infra/compose/docker-compose.yml up -d
+```
+
+## Verification
+```bash
+docker compose -f infra/compose/docker-compose.yml ps
+curl -fsSL http://localhost:9200/_cluster/health
+curl -fsSL http://localhost:5601/api/status
+```
+
+Reference the full port list in [`docs/ops/port-map.md`](port-map.md).
 
 ## Useful commands
 ```bash
@@ -38,4 +52,5 @@ make smoke
 - Mailpit: http://localhost:8025
 
 ## Notes
+- Infrastructure services live under `infra/compose/docker-compose.yml`.
 - This repo currently provides skeleton structure and DevEx commands only. Infra and services will be wired next in `infra/` and `services/`.
