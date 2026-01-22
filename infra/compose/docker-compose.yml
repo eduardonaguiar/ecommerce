@@ -311,6 +311,69 @@ services:
     networks:
       - ecommerce-net
 
+  notifications-api:
+    build:
+      context: ../../services/notifications-api
+    container_name: ecommerce-notifications-api
+    environment:
+      SERVICE_NAME: notifications-api
+      SERVICE_ENV: dev
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      ASPNETCORE_URLS: http://0.0.0.0:8080
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      KAFKA_TOPIC: orders.events
+      KAFKA_GROUP_ID: notifications-api
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_USERNAME: ecommerce
+      RABBITMQ_PASSWORD: ecommerce
+      RABBITMQ_QUEUE: notifications.send
+    ports:
+      - "8089:8080"
+    depends_on:
+      kafka:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      otel-collector:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-fsSL", "http://localhost:8080/health/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ecommerce-net
+
+  notifications-worker:
+    build:
+      context: ../../services/notifications-worker
+    container_name: ecommerce-notifications-worker
+    environment:
+      SERVICE_NAME: notifications-worker
+      SERVICE_ENV: dev
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      ASPNETCORE_URLS: http://0.0.0.0:8080
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_USERNAME: ecommerce
+      RABBITMQ_PASSWORD: ecommerce
+      RABBITMQ_QUEUE: notifications.send
+      NOTIFICATIONS_MAX_RETRIES: "3"
+      NOTIFICATIONS_RETRY_DELAY_SECONDS: "2"
+    ports:
+      - "8090:8080"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      otel-collector:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-fsSL", "http://localhost:8080/health/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ecommerce-net
+
   payments:
     build:
       context: ../../services/payments
