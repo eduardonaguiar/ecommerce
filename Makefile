@@ -21,15 +21,17 @@ MAILPIT_URL ?= http://localhost:8025
 
 .PHONY: help up down smoke logs urls e2e e2e-saga-success e2e-saga-failure-payment e2e-saga-failure-stock e2e-idempotency e2e-cqrs e2e-security
 
+COMPOSE_FILE ?= infra/compose/docker-compose.yml
+DOCKER_COMPOSE ?= docker compose
+
 help:
 	@echo "Targets: up | down | smoke | logs | urls"
 
 up:
-	@echo "Starting E-commerce System Design Lab (placeholder)."
-	@echo "Next: wire infra/services in infra/ and services/."
+	@$(DOCKER_COMPOSE) -f $(COMPOSE_FILE) up -d
 
 down:
-	@echo "Stopping E-commerce System Design Lab (placeholder)."
+	@$(DOCKER_COMPOSE) -f $(COMPOSE_FILE) down
 
 smoke:
 	@scripts/smoke/smoke.sh
