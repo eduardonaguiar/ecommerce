@@ -1,21 +1,23 @@
 namespace Orders.Models;
 
-public static class OrderStatus
+public enum OrderStatus
 {
-    public const string Pending = "PENDING";
-    public const string Confirmed = "CONFIRMED";
-    public const string Cancelled = "CANCELLED";
+    Pending,
+    Confirmed,
+    Cancelled
 }
 
-public static class StockStatus
+public enum StockStatus
 {
-    public const string Pending = "PENDING";
-    public const string Reserved = "RESERVED";
-    public const string Failed = "FAILED";
+    Pending,
+    Reserved,
+    OutOfStock
 }
 
-public static class PaymentStatus
+public enum PaymentStatus
 {
-    public const string Pending = "PENDING";
-    public const string Processed = "PROCESSED";
+    Pending,
+    Authorized,
+    Paid,
+    Failed
 }

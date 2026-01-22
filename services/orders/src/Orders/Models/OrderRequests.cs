@@ -10,9 +10,9 @@ public sealed record OrderCreateRequest
 public sealed record OrderResponse
 {
     public Guid Id { get; init; }
-    public string Status { get; init; } = string.Empty;
-    public string StockStatus { get; init; } = string.Empty;
-    public string PaymentStatus { get; init; } = string.Empty;
+    public OrderStatus Status { get; init; }
+    public StockStatus StockStatus { get; init; }
+    public PaymentStatus PaymentStatus { get; init; }
     public decimal Amount { get; init; }
     public string Currency { get; init; } = string.Empty;
     public string? CustomerId { get; init; }
