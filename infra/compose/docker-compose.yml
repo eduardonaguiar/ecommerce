@@ -283,16 +283,26 @@ services:
 
   orders:
     build:
-      context: ../../services/_template
-      dockerfile: Dockerfile
+      context: ../../services/orders
     container_name: ecommerce-orders
     environment:
       SERVICE_NAME: orders
       SERVICE_ENV: dev
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
       ASPNETCORE_URLS: http://0.0.0.0:8080
+      POSTGRES_CONNECTION_STRING: Host=postgres;Port=5432;Username=ecommerce;Password=ecommerce;Database=orders
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      KAFKA_TOPIC: orders.events
+      KAFKA_GROUP_ID: orders-saga
+    ports:
+      - "8085:8080"
     depends_on:
-      - otel-collector
+      kafka:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      otel-collector:
+        condition: service_started
     healthcheck:
       test: ["CMD", "curl", "-fsSL", "http://localhost:8080/health/ready"]
       interval: 10s
