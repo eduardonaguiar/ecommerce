@@ -122,6 +122,28 @@ services:
     networks:
       - ecommerce-net
 
+  catalog:
+    build:
+      context: ../../services/catalog
+    container_name: ecommerce-catalog
+    depends_on:
+      kafka:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+    ports:
+      - "8083:8080"
+    environment:
+      SERVICE_NAME: catalog
+      SERVICE_ENV: local
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      MONGO_CONNECTION_STRING: mongodb://ecommerce:ecommerce@mongodb:27017/catalog?authSource=admin
+      MONGO_DATABASE: catalog
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      KAFKA_TOPIC: catalog.product-upserted
+    networks:
+      - ecommerce-net
+
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.12.2
     container_name: ecommerce-elasticsearch
