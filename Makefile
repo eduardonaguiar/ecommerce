@@ -19,7 +19,7 @@ KAFKA_UI_URL ?= http://localhost:8081
 MINIO_CONSOLE_URL ?= http://localhost:9001
 MAILPIT_URL ?= http://localhost:8025
 
-.PHONY: help up down smoke logs urls
+.PHONY: help up down smoke logs urls e2e e2e-saga-success e2e-saga-failure-payment e2e-saga-failure-stock e2e-idempotency e2e-cqrs e2e-security
 
 help:
 	@echo "Targets: up | down | smoke | logs | urls"
@@ -32,8 +32,31 @@ down:
 	@echo "Stopping E-commerce System Design Lab (placeholder)."
 
 smoke:
-	@echo "Smoke checks (placeholder)."
-	@echo "API: $(API_BASE_URL)"
+	@scripts/smoke/smoke.sh
+
+K6_IMAGE ?= grafana/k6:0.49.0
+K6_DOCKER_FLAGS ?= --network host
+K6_RUN = docker run --rm -i $(K6_DOCKER_FLAGS) -v $(PWD)/tests/k6:/tests -w /tests $(K6_IMAGE) run
+
+e2e: e2e-saga-success e2e-saga-failure-payment e2e-saga-failure-stock e2e-idempotency e2e-cqrs e2e-security
+
+e2e-saga-success:
+	@$(K6_RUN) /tests/e2e_saga_success.js
+
+e2e-saga-failure-payment:
+	@$(K6_RUN) /tests/e2e_saga_payment_failure.js
+
+e2e-saga-failure-stock:
+	@$(K6_RUN) /tests/e2e_saga_stock_failure.js
+
+e2e-idempotency:
+	@$(K6_RUN) /tests/e2e_idempotency_duplicates.js
+
+e2e-cqrs:
+	@$(K6_RUN) /tests/e2e_cqrs_convergence.js
+
+e2e-security:
+	@$(K6_RUN) /tests/e2e_security_tls.js
 
 logs:
 	@echo "Logs (placeholder). Add log aggregation in infra/."
