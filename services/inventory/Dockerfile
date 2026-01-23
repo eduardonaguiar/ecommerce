@@ -1,12 +1,16 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-COPY src/Inventory/Inventory.csproj src/Inventory/
-RUN dotnet restore src/Inventory/Inventory.csproj
+COPY NuGet.Config ./
+COPY services/inventory/src/Inventory/Inventory.csproj src/Inventory/
+RUN dotnet restore src/Inventory/Inventory.csproj --configfile /src/NuGet.Config
+RUN test -f /src/src/Inventory/obj/project.assets.json \
+    && ! grep -nE 'C:\\\\|Program Files' /src/src/Inventory/obj/project.assets.json \
+    && ! grep -n "fallbackPackageFolders" /src/src/Inventory/obj/project.assets.json
 
-COPY src/Inventory/ src/Inventory/
+COPY services/inventory/src/Inventory/ src/Inventory/
 WORKDIR /src/src/Inventory
-RUN dotnet publish -c Release -o /app/publish --no-restore
+RUN dotnet publish /src/src/Inventory/Inventory.csproj -c Release -o /app/publish --no-restore
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 RUN apt-get update \

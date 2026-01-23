@@ -1,12 +1,16 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-COPY src/Catalog/Catalog.csproj src/Catalog/
-RUN dotnet restore src/Catalog/Catalog.csproj
+COPY NuGet.Config ./
+COPY services/catalog/src/Catalog/Catalog.csproj src/Catalog/
+RUN dotnet restore src/Catalog/Catalog.csproj --configfile /src/NuGet.Config
+RUN test -f /src/src/Catalog/obj/project.assets.json \
+    && ! grep -nE 'C:\\\\|Program Files' /src/src/Catalog/obj/project.assets.json \
+    && ! grep -n "fallbackPackageFolders" /src/src/Catalog/obj/project.assets.json
 
-COPY src/Catalog/ src/Catalog/
+COPY services/catalog/src/Catalog/ src/Catalog/
 WORKDIR /src/src/Catalog
-RUN dotnet publish -c Release -o /app/publish --no-restore
+RUN dotnet publish /src/src/Catalog/Catalog.csproj -c Release -o /app/publish --no-restore
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 RUN apt-get update \
