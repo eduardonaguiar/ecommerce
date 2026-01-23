@@ -124,7 +124,8 @@ services:
 
   catalog:
     build:
-      context: ../../services/catalog
+      context: ../../
+      dockerfile: services/catalog/Dockerfile
     container_name: ecommerce-catalog
     depends_on:
       kafka:
@@ -262,7 +263,8 @@ services:
 
   cart:
     build:
-      context: ../../services/cart
+      context: ../../
+      dockerfile: services/cart/Dockerfile
     container_name: ecommerce-cart
     environment:
       SERVICE_NAME: cart
@@ -283,7 +285,8 @@ services:
 
   orders:
     build:
-      context: ../../services/orders
+      context: ../../
+      dockerfile: services/orders/Dockerfile
     container_name: ecommerce-orders
     environment:
       SERVICE_NAME: orders
@@ -313,7 +316,8 @@ services:
 
   notifications-api:
     build:
-      context: ../../services/notifications-api
+      context: ../../
+      dockerfile: services/notifications-api/Dockerfile
     container_name: ecommerce-notifications-api
     environment:
       SERVICE_NAME: notifications-api
@@ -346,7 +350,8 @@ services:
 
   notifications-worker:
     build:
-      context: ../../services/notifications-worker
+      context: ../../
+      dockerfile: services/notifications-worker/Dockerfile
     container_name: ecommerce-notifications-worker
     environment:
       SERVICE_NAME: notifications-worker
@@ -376,7 +381,8 @@ services:
 
   payments:
     build:
-      context: ../../services/payments
+      context: ../../
+      dockerfile: services/payments/Dockerfile
     container_name: ecommerce-payments
     environment:
       SERVICE_NAME: payments
@@ -405,7 +411,8 @@ services:
 
   inventory:
     build:
-      context: ../../services/inventory
+      context: ../../
+      dockerfile: services/inventory/Dockerfile
     container_name: ecommerce-inventory
     environment:
       SERVICE_NAME: inventory
@@ -439,8 +446,8 @@ services:
 
   query:
     build:
-      context: ../../services/_template
-      dockerfile: Dockerfile
+      context: ../../
+      dockerfile: services/_template/Dockerfile
     container_name: ecommerce-query
     environment:
       SERVICE_NAME: query
@@ -459,8 +466,8 @@ services:
 
   gateway:
     build:
-      context: ../../services/gateway
-      dockerfile: Dockerfile
+      context: ../../
+      dockerfile: services/gateway/Dockerfile
     container_name: ecommerce-gateway
     environment:
       SERVICE_NAME: gateway
@@ -497,8 +504,8 @@ services:
 
   service-template:
     build:
-      context: ../../services/_template
-      dockerfile: Dockerfile
+      context: ../../
+      dockerfile: services/_template/Dockerfile
     container_name: ecommerce-service-template
     environment:
       SERVICE_NAME: service-template

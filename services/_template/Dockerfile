@@ -1,12 +1,16 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-COPY src/ServiceTemplate/ServiceTemplate.csproj src/ServiceTemplate/
-RUN dotnet restore src/ServiceTemplate/ServiceTemplate.csproj
+COPY NuGet.Config ./
+COPY services/_template/src/ServiceTemplate/ServiceTemplate.csproj src/ServiceTemplate/
+RUN dotnet restore src/ServiceTemplate/ServiceTemplate.csproj --configfile /src/NuGet.Config
+RUN test -f /src/src/ServiceTemplate/obj/project.assets.json \
+    && ! grep -nE 'C:\\\\|Program Files' /src/src/ServiceTemplate/obj/project.assets.json \
+    && ! grep -n "fallbackPackageFolders" /src/src/ServiceTemplate/obj/project.assets.json
 
-COPY src/ServiceTemplate/ src/ServiceTemplate/
+COPY services/_template/src/ServiceTemplate/ src/ServiceTemplate/
 WORKDIR /src/src/ServiceTemplate
-RUN dotnet publish -c Release -o /app/publish --no-restore
+RUN dotnet publish /src/src/ServiceTemplate/ServiceTemplate.csproj -c Release -o /app/publish --no-restore
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 RUN apt-get update \
