@@ -14,21 +14,22 @@ public sealed class NotificationWorker : BackgroundService
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
 
-    private readonly IConnection _connection;
+    private readonly ConnectionFactory _connectionFactory;
     private readonly RabbitMqOptions _rabbitOptions;
     private readonly NotificationWorkerOptions _workerOptions;
     private readonly ILogger<NotificationWorker> _logger;
     private readonly ActivitySource _activitySource;
+    private IConnection? _connection;
     private IModel? _channel;
 
     public NotificationWorker(
-        IConnection connection,
+        ConnectionFactory connectionFactory,
         RabbitMqOptions rabbitOptions,
         NotificationWorkerOptions workerOptions,
         ILogger<NotificationWorker> logger,
         ActivitySource activitySource)
     {
-        _connection = connection;
+        _connectionFactory = connectionFactory;
         _rabbitOptions = rabbitOptions;
         _workerOptions = workerOptions;
         _logger = logger;
@@ -37,9 +38,11 @@ public sealed class NotificationWorker : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _channel = _connection.CreateModel();
-        _channel.QueueDeclare(queue: _rabbitOptions.QueueName, durable: true, exclusive: false, autoDelete: false);
-        _channel.BasicQos(0, _workerOptions.PrefetchCount, false);
+        var connected = await EnsureChannelAsync(stoppingToken);
+        if (!connected)
+        {
+            return;
+        }
 
         var consumer = new AsyncEventingBasicConsumer(_channel);
         consumer.Received += async (_, args) => await HandleMessageAsync(args, stoppingToken);
@@ -169,10 +172,41 @@ public sealed class NotificationWorker : BackgroundService
         }
     }
 
+    private async Task<bool> EnsureChannelAsync(CancellationToken stoppingToken)
+    {
+        while (!stoppingToken.IsCancellationRequested)
+        {
+            try
+            {
+                _connection = _connectionFactory.CreateConnection();
+                _channel = _connection.CreateModel();
+                _channel.QueueDeclare(
+                    queue: _rabbitOptions.QueueName,
+                    durable: true,
+                    exclusive: false,
+                    autoDelete: false);
+                _channel.BasicQos(0, _workerOptions.PrefetchCount, false);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(
+                    ex,
+                    "{event} rabbitmq connection failed; retrying",
+                    "notifications.rabbitmq.connect_failed");
+                await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
+            }
+        }
+
+        return false;
+    }
+
     public override void Dispose()
     {
         _channel?.Close();
         _channel?.Dispose();
+        _connection?.Close();
+        _connection?.Dispose();
         base.Dispose();
     }
 }
