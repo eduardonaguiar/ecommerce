@@ -10,7 +10,7 @@ RUN test -f /src/src/Orders/obj/project.assets.json \
 
 COPY services/orders/src/Orders/ src/Orders/
 WORKDIR /src/src/Orders
-RUN dotnet publish /src/src/Orders/Orders.csproj -c Release -o /app/publish --no-restore
+RUN dotnet publish /src/src/Orders/Orders.csproj -c Release -o /app/publish
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 RUN apt-get update \
