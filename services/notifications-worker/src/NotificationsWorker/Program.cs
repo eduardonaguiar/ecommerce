@@ -102,19 +102,14 @@ builder.Services.AddSingleton(new Meter(serviceName));
 
 builder.Services.AddSingleton(rabbitOptions);
 builder.Services.AddSingleton(workerOptions);
-builder.Services.AddSingleton<IConnection>(_ =>
+builder.Services.AddSingleton(_ => new ConnectionFactory
 {
-    var factory = new ConnectionFactory
-    {
-        HostName = rabbitOptions.HostName,
-        Port = rabbitOptions.Port,
-        UserName = rabbitOptions.UserName,
-        Password = rabbitOptions.Password,
-        DispatchConsumersAsync = true,
-        AutomaticRecoveryEnabled = true
-    };
-
-    return factory.CreateConnection();
+    HostName = rabbitOptions.HostName,
+    Port = rabbitOptions.Port,
+    UserName = rabbitOptions.UserName,
+    Password = rabbitOptions.Password,
+    DispatchConsumersAsync = true,
+    AutomaticRecoveryEnabled = true
 });
 
 builder.Services.AddHostedService<NotificationWorker>();
@@ -144,13 +139,6 @@ app.MapHealthChecks("/health/live", new HealthCheckOptions
 app.MapHealthChecks("/health/ready", new HealthCheckOptions
 {
     Predicate = registration => registration.Tags.Contains("ready")
-});
-
-app.Lifetime.ApplicationStopping.Register(() =>
-{
-    var connection = app.Services.GetRequiredService<IConnection>();
-    connection.Close();
-    connection.Dispose();
 });
 
 app.Run();
