@@ -1,9 +1,11 @@
 using System.Diagnostics;
+using System.Diagnostics.Metrics;
 using Confluent.Kafka;
 using Inventory.Data;
 using Inventory.Logging;
 using Inventory.Messaging;
 using Inventory.Models;
+using Microsoft.AspNetCore.OpenApi;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Npgsql;
 using OpenTelemetry.Metrics;
