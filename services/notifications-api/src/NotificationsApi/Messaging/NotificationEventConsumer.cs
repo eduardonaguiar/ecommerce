@@ -102,7 +102,7 @@ public sealed class NotificationEventConsumer : BackgroundService
         ActivityContext parentContext = default;
         if (!string.IsNullOrWhiteSpace(envelope.TraceId) && !string.IsNullOrWhiteSpace(envelope.SpanId))
         {
-            ActivityContext.TryParse(envelope.TraceId, envelope.SpanId, ActivityTraceFlags.Recorded, out parentContext);
+            ActivityContext.TryParse(envelope.TraceId, envelope.SpanId, out parentContext);
         }
 
         var activity = parentContext == default
@@ -182,7 +182,7 @@ public sealed class NotificationEventConsumer : BackgroundService
         }
         catch (JsonException)
         {
-            return null;
+            return default;
         }
     }
 
