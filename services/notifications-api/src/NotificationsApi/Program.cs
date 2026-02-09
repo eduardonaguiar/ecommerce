@@ -1,5 +1,7 @@
 using System.Diagnostics;
+using System.Diagnostics.Metrics;
 using Confluent.Kafka;
+using Microsoft.AspNetCore.OpenApi;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
