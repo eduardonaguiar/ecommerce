@@ -123,7 +123,7 @@ public sealed class NotificationWorker : BackgroundService
         ActivityContext parentContext = default;
         if (!string.IsNullOrWhiteSpace(job.TraceId) && !string.IsNullOrWhiteSpace(job.SpanId))
         {
-            ActivityContext.TryParse(job.TraceId, job.SpanId, ActivityTraceFlags.Recorded, out parentContext);
+            ActivityContext.TryParse(job.TraceId, job.SpanId, out parentContext);
         }
 
         var activity = parentContext == default
