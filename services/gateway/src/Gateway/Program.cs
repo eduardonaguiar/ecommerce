@@ -11,6 +11,29 @@ using Gateway.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var certificatePath = Environment.GetEnvironmentVariable("ASPNETCORE_Kestrel__Certificates__Default__Path");
+var certificateExists = string.IsNullOrWhiteSpace(certificatePath) || File.Exists(certificatePath);
+var configuredUrls = Environment.GetEnvironmentVariable("ASPNETCORE_URLS");
+var parsedUrls = string.IsNullOrWhiteSpace(configuredUrls)
+    ? Array.Empty<string>()
+    : configuredUrls.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+var hasHttpsUrl = parsedUrls.Any(url => url.StartsWith("https://", StringComparison.OrdinalIgnoreCase));
+
+if (hasHttpsUrl && !certificateExists)
+{
+    var httpUrls = parsedUrls
+        .Where(url => url.StartsWith("http://", StringComparison.OrdinalIgnoreCase))
+        .ToArray();
+    var fallbackUrls = httpUrls.Length > 0 ? httpUrls : ["http://0.0.0.0:8080"];
+
+    builder.WebHost.UseUrls(fallbackUrls);
+    builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?>
+    {
+        ["Kestrel:Certificates:Default:Path"] = string.Empty,
+        ["Kestrel:Certificates:Default:Password"] = string.Empty
+    });
+}
+
 var serviceName = builder.Configuration["SERVICE_NAME"] ?? "gateway";
 var serviceEnv = builder.Configuration["SERVICE_ENV"] ?? builder.Environment.EnvironmentName;
 var otlpEndpoint = builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"] ?? "http://otel-collector:4317";
@@ -121,6 +144,8 @@ builder.Services.AddOpenTelemetry()
 
 var app = builder.Build();
 
+var enableHttpsRedirection = hasHttpsUrl && certificateExists;
+
 app.Use(async (context, next) =>
 {
     using (LogContext.PushProperty("request_id", context.TraceIdentifier))
@@ -129,7 +154,10 @@ app.Use(async (context, next) =>
     }
 });
 
-app.UseHttpsRedirection();
+if (enableHttpsRedirection)
+{
+    app.UseHttpsRedirection();
+}
 app.UseAuthentication();
 app.UseAuthorization();
 
