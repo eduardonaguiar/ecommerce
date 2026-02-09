@@ -10,7 +10,7 @@ RUN test -f /src/src/NotificationsWorker/obj/project.assets.json \
 
 COPY services/notifications-worker/src/NotificationsWorker/ src/NotificationsWorker/
 WORKDIR /src/src/NotificationsWorker
-RUN dotnet publish /src/src/NotificationsWorker/NotificationsWorker.csproj -c Release -o /app/publish --no-restore
+RUN dotnet publish /src/src/NotificationsWorker/NotificationsWorker.csproj -c Release -o /app/publish
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 RUN apt-get update \
