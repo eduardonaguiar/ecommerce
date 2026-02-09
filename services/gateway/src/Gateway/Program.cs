@@ -11,7 +11,8 @@ using Gateway.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var certificatePath = Environment.GetEnvironmentVariable("ASPNETCORE_Kestrel__Certificates__Default__Path");
+var certificatePath = builder.Configuration["Kestrel:Certificates:Default:Path"]
+    ?? Environment.GetEnvironmentVariable("ASPNETCORE_Kestrel__Certificates__Default__Path");
 var certificateExists = string.IsNullOrWhiteSpace(certificatePath) || File.Exists(certificatePath);
 var configuredUrls = Environment.GetEnvironmentVariable("ASPNETCORE_URLS");
 var parsedUrls = string.IsNullOrWhiteSpace(configuredUrls)
