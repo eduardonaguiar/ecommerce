@@ -16,21 +16,20 @@ export function createApiClient({ baseUrl, correlationId }) {
   const normalizedBase = normalizeBaseUrl(baseUrl);
 
   function buildHeaders(additionalHeaders = {}) {
-    return {
-      'Content-Type': 'application/json',
-      'X-Correlation-Id': correlationId,
-      ...getAuthHeaders(),
-      ...additionalHeaders
-    };
+    return Object.assign(
+      {
+        'Content-Type': 'application/json',
+        'X-Correlation-Id': correlationId
+      },
+      getAuthHeaders(),
+      additionalHeaders
+    );
   }
 
   function request(method, path, body, params = {}) {
     const url = `${normalizedBase}${normalizePath(path)}`;
     const headers = buildHeaders(params.headers);
-    const requestParams = {
-      ...params,
-      headers
-    };
+    const requestParams = Object.assign({}, params, { headers });
 
     if (body === undefined || body === null) {
       return http.request(method, url, null, requestParams);
