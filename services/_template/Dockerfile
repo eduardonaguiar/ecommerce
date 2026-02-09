@@ -10,7 +10,7 @@ RUN test -f /src/src/ServiceTemplate/obj/project.assets.json \
 
 COPY services/_template/src/ServiceTemplate/ src/ServiceTemplate/
 WORKDIR /src/src/ServiceTemplate
-RUN dotnet publish /src/src/ServiceTemplate/ServiceTemplate.csproj -c Release -o /app/publish --no-restore
+RUN dotnet publish /src/src/ServiceTemplate/ServiceTemplate.csproj -c Release -o /app/publish
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 RUN apt-get update \

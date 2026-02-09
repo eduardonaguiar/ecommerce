@@ -10,7 +10,7 @@ RUN test -f /src/src/Catalog/obj/project.assets.json \
 
 COPY services/catalog/src/Catalog/ src/Catalog/
 WORKDIR /src/src/Catalog
-RUN dotnet publish /src/src/Catalog/Catalog.csproj -c Release -o /app/publish --no-restore
+RUN dotnet publish /src/src/Catalog/Catalog.csproj -c Release -o /app/publish
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 RUN apt-get update \

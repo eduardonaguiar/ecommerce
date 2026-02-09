@@ -10,7 +10,7 @@ RUN test -f /src/src/Payments/obj/project.assets.json \
 
 COPY services/payments/src/Payments/ src/Payments/
 WORKDIR /src/src/Payments
-RUN dotnet publish /src/src/Payments/Payments.csproj -c Release -o /app/publish --no-restore
+RUN dotnet publish /src/src/Payments/Payments.csproj -c Release -o /app/publish
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 RUN apt-get update \
