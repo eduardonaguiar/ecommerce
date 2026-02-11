@@ -21,6 +21,11 @@ These scripts validate **business semantics** of the E-commerce system from the 
    docker compose -f infra/compose/docker-compose.yml up -d
    ```
 2. Provide a JWT for the gateway (either `E2E_JWT` or `JWT_HS256_SECRET`).
+   - To generate a local HS256 token quickly:
+     ```bash
+     JWT_HS256_SECRET=dev-secret make jwt-dev
+     export E2E_JWT=$(JWT_HS256_SECRET=dev-secret make -s jwt-dev)
+     ```
 3. Run the functional suite:
    ```bash
    make e2e-functional
