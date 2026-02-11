@@ -19,7 +19,7 @@ KAFKA_UI_URL ?= http://localhost:8081
 MINIO_CONSOLE_URL ?= http://localhost:9001
 MAILPIT_URL ?= http://localhost:8025
 
-.PHONY: help up down smoke logs urls e2e e2e-saga-success e2e-saga-failure-payment e2e-saga-failure-stock e2e-idempotency e2e-cqrs e2e-security e2e-functional e2e-functional-success e2e-functional-failure e2e-functional-cqrs e2e-functional-cart e2e-functional-notifications
+.PHONY: help up down smoke logs urls e2e e2e-saga-success e2e-saga-failure-payment e2e-saga-failure-stock e2e-idempotency e2e-cqrs e2e-security e2e-functional e2e-functional-success e2e-functional-failure e2e-functional-cqrs e2e-functional-cart e2e-functional-notifications jwt-dev
 
 COMPOSE_FILE ?= infra/compose/docker-compose.yml
 DOCKER_COMPOSE ?= docker compose
@@ -94,3 +94,11 @@ urls:
 	@echo "- Kafka UI: $(KAFKA_UI_URL)"
 	@echo "- MinIO Console: $(MINIO_CONSOLE_URL)"
 	@echo "- Mailpit: $(MAILPIT_URL)"
+
+
+jwt-dev:
+	@if [ -z "$$JWT_HS256_SECRET" ]; then \
+		echo "JWT_HS256_SECRET is required. Example: JWT_HS256_SECRET=dev-secret make jwt-dev"; \
+		exit 1; \
+	fi
+	@python3 scripts/testdata/generate_dev_jwt.py --secret "$$JWT_HS256_SECRET"
